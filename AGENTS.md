@@ -94,6 +94,8 @@ This still satisfies the product goal for a working prototype while avoiding fra
 
 - Design spec:
   - `C:\project\docs\superpowers\specs\2026-04-11-codex-fishing-mascot-design.md`
+- Next design spec:
+  - `C:\project\docs\superpowers\specs\2026-04-11-universal-terminal-watcher-design.md`
 - Implementation plan:
   - `C:\project\docs\superpowers\plans\2026-04-11-codex-fishing-mascot.md`
 - Built artifacts:
@@ -104,6 +106,20 @@ This still satisfies the product goal for a working prototype while avoiding fra
 
 - `electron-builder` portable packaging required `signAndEditExecutable: false` in `electron-builder.json`
 - default Electron icon is still in use for v1
+
+## Approved Next Stage
+
+- add a Windows-only universal terminal watcher
+- discover candidate terminal windows
+- let the user select from a list or manually pick a window
+- use UI Automation first
+- use Windows OCR as fallback
+- detect only `Working` versus `Idle` in the first version of this watcher
+- use the `Working (... esc to interrupt)` line as the primary activity signal
+- optimize for low overhead:
+  - watch only one selected window
+  - poll roughly once per second
+  - debounce state changes over two polls
 
 ## Workflow Rule
 
