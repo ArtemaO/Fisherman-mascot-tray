@@ -121,6 +121,61 @@ This still satisfies the product goal for a working prototype while avoiding fra
   - poll roughly once per second
   - debounce state changes over two polls
 
+## Universal Watcher Progress
+
+Work is currently happening in the git worktree:
+
+- `C:\project\.worktrees\universal-terminal-watcher`
+- branch: `feature/universal-terminal-watcher`
+
+Progress snapshot:
+
+- Design spec written and committed:
+  - `f9a5f86 docs: add universal terminal watcher design`
+- Worktree setup and ignore rule committed on main:
+  - `ab2dc72 chore: ignore project worktrees`
+- Task 1 complete:
+  - detector file: `src/main/activityDetector.js`
+  - tests: `tests/unit/activityDetector.test.js`
+  - commit: `dd47703 feat: add working-state detector`
+- Task 2 mostly complete:
+  - PowerShell scripts:
+    - `scripts/list-terminal-windows.ps1`
+    - `scripts/get-foreground-window.ps1`
+  - JS bridge:
+    - `src/main/windowsBridge.js`
+    - `src/main/windowDiscovery.js`
+  - tests:
+    - `tests/unit/windowsBridge.test.js`
+    - `tests/unit/windowDiscovery.test.js`
+  - latest task commit: `e06435e feat: add terminal window discovery bridge`
+
+Current stop point:
+
+- Task 2 hardening fix is now applied.
+- `windowsBridge.js` now launches PowerShell with:
+  - `-NoProfile`
+  - `-NonInteractive`
+- Reason: stdout must stay clean for JSON parsing even if the user PowerShell profile prints text on startup.
+- Focused verification completed and passed:
+  - `npm test -- tests/unit/windowsBridge.test.js`
+  - `npm test -- tests/unit/windowDiscovery.test.js`
+- Next implementation step:
+  - continue with the universal watcher UI and window selection flow
+
+## Git State Reminder
+
+- Main repository is already initialized and connected to GitHub:
+  - `https://github.com/ArtemaO/Fisherman-mascot-tray`
+- `origin/main` currently contains the prototype commit:
+  - `bddd025 feat: add codex fishing mascot prototype`
+- Local `main` is ahead of `origin/main` by two commits and has not been pushed yet:
+  - `f9a5f86 docs: add universal terminal watcher design`
+  - `ab2dc72 chore: ignore project worktrees`
+- The universal watcher work is on a separate local feature branch/worktree and is also not pushed yet:
+  - branch: `feature/universal-terminal-watcher`
+  - current head: `e06435e feat: add terminal window discovery bridge`
+
 ## Workflow Rule
 
 When a major product or technical decision changes, update this file in the same work session.
