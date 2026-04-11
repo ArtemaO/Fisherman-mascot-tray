@@ -1,0 +1,16 @@
+{
+  "appId": "com.codex.fishingmascot",
+  "productName": "Codex Fishing Mascot",
+  "files": [
+    "src/**/*",
+    "assets/**/*",
+    "scripts/start-codex-watcher.ps1",
+    "package.json"
+  ],
+  "win": {
+    "signAndEditExecutable": false,
+    "target": [
+      "portable"
+    ]
+  }
+}
