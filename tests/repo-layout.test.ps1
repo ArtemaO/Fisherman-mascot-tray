@@ -8,6 +8,7 @@ $requiredPaths = @(
   'scripts/lib/notify-codex-lib.ps1',
   'tests/notify-codex.test.ps1',
   'tests/notify-codex-cli.test.ps1',
+  'tests/notify-codex-shortcut.test.ps1',
   'README.md',
   'AGENTS.md'
 )

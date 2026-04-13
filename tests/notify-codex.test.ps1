@@ -35,7 +35,8 @@ function Assert-Equal {
 $reply = Get-CodexNotificationContent -Kind 'needs-reply'
 Assert-Equal $reply.Title 'Codex' 'Reply title mismatch'
 Assert-Equal $reply.Message $replyMessage 'Reply message mismatch'
-Assert-Equal $reply.AppId 'PowerShell' 'Reply AppId mismatch'
+$registration = Get-CodexToastRegistration
+Assert-Equal $reply.AppId $registration.AppId 'Reply AppId mismatch'
 
 $confirmation = Get-CodexNotificationContent -Kind 'needs-confirmation'
 Assert-Equal $confirmation.Message $confirmationMessage 'Confirmation message mismatch'

@@ -26,4 +26,6 @@
 
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex-cli.test.ps1`
 
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex-shortcut.test.ps1`
+
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\repo-layout.test.ps1`
