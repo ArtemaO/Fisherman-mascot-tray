@@ -1,163 +1,174 @@
-# Codex Direct Windows Notifier - Design
+# Прямой Windows-нотификатор для Codex - дизайн
 
-Date: 2026-04-13
-Status: Approved in chat, written for review
+Дата: 2026-04-13
+Статус: Согласовано в чате, записано для ревью
 
-## Goal
+## Цель
 
-Build the simplest reliable Windows notifier for Codex attention states without watching terminal output and without keeping a desktop app running in the background.
+Собрать самый простой и надежный Windows-нотификатор для состояний внимания Codex без наблюдения за терминалом и без постоянно запущенного фонового приложения.
 
-The system must alert the user only for three narrow states:
+Система должна будить пользователя только в трех узких состояниях:
 
-- waiting for user reply
-- waiting for confirmation
-- task finished and requesting attention
+- ожидание ответа пользователя
+- ожидание подтверждения действия
+- задача завершена и требует внимания
 
-The notifier should be lightweight enough that it does not meaningfully load the PC or interfere with AI work when idle.
+Нотификатор должен быть настолько легким, чтобы в простое не нагружать ПК и не мешать работе AI.
 
-## Version Scope
+## Границы версии
 
-This version replaces the earlier watcher-first prototype direction for v1.
+Эта версия заменяет прежнее watcher-first направление для v1.
 
-Included:
+Входит в объем:
 
-- Windows-only notification path
-- direct invocation from the active Codex session
-- standard Windows toast notification
-- short text message for each attention state
-- app icon if available
-- optional short system sound when supported
-- no long-lived watcher process
-- no polling of windows or terminal content
+- Windows-only путь уведомлений
+- прямой вызов из активной сессии Codex
+- стандартный Windows toast
+- короткий текст для каждого attention-состояния
+- иконка приложения, если получится подключить ее без лишней сложности
+- короткий системный звук, если он поддерживается без падения сценария
+- отсутствие долгоживущего watcher-процесса
+- отсутствие опроса окон и содержимого терминала
 
-Not included:
+Не входит в объем:
 
 - Electron tray app
-- transparent mascot window
+- прозрачное окно с маскотом
 - terminal watcher
 - OCR
 - UI Automation
-- universal terminal support
-- semantic chat parsing
-- repeat scheduling outside the calling workflow
+- поддержка любых терминалов
+- семантический разбор чата
+- отдельный планировщик повторов вне вызывающего сценария
 
-## Product Shape
+## Форма продукта
 
-The first minimal product is a single local PowerShell entrypoint:
+Первый минимальный продукт - это один локальный PowerShell entrypoint:
 
 - `scripts/notify-codex.ps1`
 
-The script is called directly when attention is needed. It shows a standard Windows notification and exits immediately.
+Скрипт вызывается напрямую, когда нужно внимание пользователя. Он показывает стандартное Windows-уведомление и сразу завершается.
 
-There is no resident process in idle state.
+В простое никакого резидентного процесса нет.
 
-## User Experience
+## Пользовательский сценарий
 
-When Codex needs attention, Windows shows a normal toast notification with:
+Когда Codex требует внимания, Windows показывает обычный toast со следующими данными:
 
-- title: `Codex`
-- short body text matching the attention state
-- optional second line with `Klyuet, podsekay!`
-- application icon when available
+- заголовок: `Codex`
+- короткий текст в зависимости от типа события
+- допускается дружелюбная фраза `Клюет, подсекай!`
+- иконка приложения, если она доступна
 
-Example messages:
+Примеры текстов:
 
-- reply: `Nuzhen otvet. Klyuet, podsekay!`
-- confirmation: `Nuzhno podtverzhdenie. Klyuet, podsekay!`
-- finished: `Zadacha zavershena. Klyuet, podsekay!`
+- reply: `Нужен ответ. Клюет, подсекай!`
+- confirmation: `Нужно подтверждение. Клюет, подсекай!`
+- finished: `Задача завершена. Клюет, подсекай!`
 
-The notification should be readable, brief, and immediately recognizable as coming from the local Codex workflow.
+Уведомление должно быть коротким, читаемым и сразу понятным как сигнал из локального workflow Codex.
 
-## Architecture
+## Архитектура
 
-### 1. Notification Script
+### 1. Скрипт уведомления
 
-Responsibilities:
+Ответственности:
 
-- accept a narrow `Kind` parameter
-- map `Kind` to user-facing notification text
-- invoke Windows toast APIs
-- optionally trigger a short system sound
-- exit cleanly
+- принять узкий параметр `Kind`
+- отобразить `Kind` в пользовательский текст
+- собрать toast XML
+- вызвать встроенные WinRT toast API из PowerShell
+- при возможности включить короткий системный звук
+- корректно завершиться
 
-Supported kinds:
+Поддерживаемые `Kind`:
 
 - `needs-reply`
 - `needs-confirmation`
 - `finished`
 
-### 2. Calling Path
+### 2. Путь вызова
 
-Responsibilities:
+Ответственности:
 
-- invoke the notification script only when attention is genuinely required
-- keep invocation explicit rather than inferred from terminal scraping
+- вызывать скрипт только тогда, когда внимание реально нужно
+- делать вызов явным, а не выводить состояние из наблюдения за терминалом
 
-The calling side may be:
+Стороной вызова может быть:
 
-- a Codex-side tool invocation
-- a helper command the operator runs manually
-- a wrapper used by the local workflow
+- прямой вызов локального tool/command из сессии Codex
+- ручной запуск оператором
+- обертка в локальном workflow
 
-The important design rule is that notification is direct and intentional, not discovered by watching terminal output.
+Ключевое правило: уведомление должно вызываться намеренно, а не появляться из парсинга stdout.
 
-## Performance and Resource Use
+## Техническое решение для v1
 
-This design is optimized for minimal overhead.
+Для v1 использовать встроенные WinRT API, доступные из PowerShell 5.1 на этой машине:
 
-Rules:
+- `Windows.UI.Notifications.ToastNotificationManager`
+- `Windows.UI.Notifications.ToastNotification`
+- `Windows.Data.Xml.Dom.XmlDocument`
 
-- no background watcher
-- no polling loop
-- no resident Electron process
-- no terminal scanning
-- the notification process lives only for the duration of the toast call
+`BurntToast` не использовать, если встроенный путь покрывает задачу. Это убирает внешнюю зависимость и упрощает репозиторий.
 
-Idle cost should be effectively zero outside normal Windows notification infrastructure.
+## Производительность и нагрузка
 
-## Error Handling
+Этот дизайн оптимизирован под минимальный overhead.
 
-Failure should be soft:
+Правила:
 
-- if toast display fails, the script should return a nonzero exit code and print a concise error
-- if sound fails, the notification should still succeed
-- if icon loading fails, the notification should still succeed with text only
-- unsupported `Kind` values should fail clearly
+- без фонового watcher
+- без polling loop
+- без резидентного Electron-процесса
+- без сканирования терминала
+- процесс уведомления живет только во время вызова toast
 
-## Acceptance Criteria
+Цена простоя должна быть практически нулевой за пределами обычной Windows notification infrastructure.
 
-This version is successful when all of the following are true:
+## Обработка ошибок
 
-- a local command can trigger a Windows toast
-- the toast text differs correctly for reply, confirmation, and finished
-- the script exits after showing the notification
-- no tray app or watcher needs to stay running in the background
-- idle resource use remains negligible
-- the implementation does not inspect terminal output to decide attention state
+Сбой должен быть мягким:
 
-## Migration Impact
+- если toast не удалось показать, скрипт должен завершиться с ненулевым кодом и короткой диагностикой
+- если звук не сработал, само уведомление все равно считается успешным
+- если иконка не загрузилась, уведомление все равно показывается текстом
+- неподдерживаемый `Kind` должен завершаться явной ошибкой
 
-This design supersedes the earlier v1 direction that centered the product around:
+## Критерии приемки
+
+Версия считается успешной, если выполняются все условия:
+
+- локальная команда может показать Windows toast
+- текст toast меняется корректно для reply, confirmation и finished
+- скрипт завершается сразу после показа уведомления
+- в фоне не нужно держать tray app или watcher
+- в простое нагрузка остается пренебрежимо малой
+- реализация не читает terminal output для определения состояния внимания
+
+## Последствия для миграции
+
+Этот дизайн заменяет прежнее v1-направление, построенное вокруг:
 
 - Electron tray runtime
-- mascot popup window
-- local HTTP watcher bridge
+- popup-окна с маскотом
+- локального HTTP watcher bridge
 - helper-based stdout pattern matching
 
-Those files may be removed during implementation if they are not needed for the direct notifier path.
+Во время реализации эти файлы можно удалить из рабочей версии репозитория, если они больше не нужны для direct notifier path.
 
-The fisherman mascot remains a valid future enhancement, but it is no longer part of the minimal first implementation.
+Маскот-рыбак остается допустимым будущим улучшением, но не входит в первую минимальную реализацию.
 
-## Testing Strategy
+## Стратегия тестирования
 
-Testing should stay narrow:
+Тестирование должно оставаться узким:
 
-- unit test for `Kind` to message mapping
-- manual invocation test for each supported kind
-- manual failure test for an invalid kind
+- unit test для отображения `Kind` в текст уведомления
+- ручной запуск для каждого поддерживаемого `Kind`
+- ручная проверка ошибки на неподдерживаемом `Kind`
 
-No browser automation or terminal watcher testing is required for this version.
+Browser automation и terminal watcher тесты для этой версии не нужны.
 
-## Design Summary
+## Краткое резюме
 
-Build a Windows-only direct notifier for Codex that is invoked explicitly when attention is needed, shows a standard Windows toast with short text and optional icon and sound, and exits immediately without any watcher, polling, or long-lived desktop process.
+Собрать Windows-only direct notifier для Codex, который вызывается явно, когда нужно внимание пользователя, показывает стандартный Windows toast с коротким текстом и опциональными иконкой и звуком, а затем сразу завершается без watcher, polling и долгоживущего desktop-процесса.

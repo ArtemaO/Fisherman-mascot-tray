@@ -1,31 +1,29 @@
 # Fisherman Mascot Tray
 
-Этот репозиторий теперь хранит минимальный Windows-нотификатор для Codex.
+Минимальный Windows-нотификатор для Codex.
+
+## Что делает проект
+
+Скрипт показывает стандартное Windows-уведомление только в трех состояниях:
+
+- нужен ответ пользователя
+- нужно подтверждение
+- задача завершена
+
+Проект намеренно не читает терминал и не держит резидентные процессы в фоне.
 
 ## Быстрый запуск
 
-Показать уведомление о необходимости ответа:
-
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind needs-reply`
-
-Показать уведомление о необходимости подтверждения:
 
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind needs-confirmation`
 
-Показать уведомление о завершении задачи:
-
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind finished`
 
-Отключить звук:
-
-`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind finished -NoSound`
-
-## Проверка без показа toast
-
-`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind needs-reply -Preview`
-
-## Тесты
+## Проверка
 
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex.test.ps1`
 
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex-cli.test.ps1`
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\repo-layout.test.ps1`
