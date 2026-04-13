@@ -1,18 +1,31 @@
-# Codex Fishing Mascot
+# Fisherman Mascot Tray
 
-Windows tray prototype that shows a fisherman mascot near the system tray when Codex needs attention.
+Минимальный Windows-нотификатор для Codex.
 
-## Run locally
+## Что делает проект
 
-1. `npm install`
-2. `npm run start`
-3. In another Windows Terminal tab, run:
-   `powershell -ExecutionPolicy Bypass -File .\scripts\start-codex-watcher.ps1`
+Скрипт показывает стандартное Windows-уведомление только в трех состояниях:
 
-## Send a test alert
+- нужен ответ пользователя
+- нужно подтверждение
+- задача завершена
 
-`powershell -ExecutionPolicy Bypass -File .\scripts\send-test-event.ps1 -Kind needs-reply`
+Проект намеренно не читает терминал и не держит резидентные процессы в фоне.
 
-## Build a Windows portable app
+## Быстрый запуск
 
-`npm run package:win`
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind needs-reply`
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind needs-confirmation`
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\notify-codex.ps1 -Kind finished`
+
+## Проверка
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex.test.ps1`
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex-cli.test.ps1`
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\notify-codex-shortcut.test.ps1`
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\repo-layout.test.ps1`
